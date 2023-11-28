@@ -1,9 +1,6 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Hello world!
@@ -13,26 +10,28 @@ public class App
 {
     public static void main( String[] args )
     {
-        Set<String> phones = new HashSet<>();
-        phones.add("Айфон");
-        phones.add("ЛДжи");
-        phones.add("Самсунг");
-        phones.add("Ксиоми");
-        phones.add("Реалми");
+        ArrayList<Book> books = new ArrayList<>();
 
-        Iterator<String> iterator = phones.iterator();
 
-        String searchElement = "ЛДжи";
-
-        while (iterator.hasNext()){
-            String next = iterator.next();
-            if (next.equals(searchElement)){
-                iterator.remove();
-            }
+        for (int i = 0; i < 10; i++) {
+            books.add(new Book("Какое-то имя " + i, "Какой-то автор " + i));
         }
 
-        Iterator<String> iterator1 = phones.iterator();
-        iterator1.forEachRemaining(System.out::println);
+
+        Spliterator<Book> iterator = books.spliterator();
+
+        Thread firstSplitThread = new Thread(()-> iterator.forEachRemaining((book -> {
+            book.setAuthor("Новый");
+            System.out.println(book);
+        })));
+
+        Thread secondSplitThread = new Thread(() -> iterator.trySplit().forEachRemaining(book -> {
+            book.setName("Новое имя");
+            System.out.println(book);
+        }));
+
+        firstSplitThread.start();
+        secondSplitThread.start();
 
     }
 }
